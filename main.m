@@ -64,9 +64,15 @@ e_phi = 0;
 feedforward = 0;
 
 while stat == true                          % Quit when times up
-%     if stat2 == false
-%         q_des = [1 1];
-%     end
+    %     if stat2 == false
+    %         q_des = [1 1];
+    %     end
+    
+    if norm(q_robot(1,1) - q_des) <= 100 % 목표와의 거리가 10cm(0.1m) 이하인경우 
+        SPEED = 0;
+    else
+        SPEED = 60;
+    end
     
     phi_des = -asin((q_des(1)-q_robot(1))/norm(q_des-q_robot(1:2)))*180/pi;
     phi_robot = q_robot(3);
