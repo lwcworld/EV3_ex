@@ -103,7 +103,6 @@ while stat == true                          % Quit when times up
 end
 
 %% Clean up %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 stop(mymotor1);                             % Stop motor 
 stop(mymotor2);
 
