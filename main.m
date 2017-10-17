@@ -21,6 +21,16 @@ mylego = legoev3('bt','00165354475A')
 mymotor1 = motor(mylego, 'B');              % Set up motor
 mymotor2 = motor(mylego, 'C');
 
+%% path generation
+p1 = [0,0,0]'; % robot's initial [x,y,heading]
+p2 = [0,1000,0]'; % [x, y, heading] = [mm, mm , rad] 
+r_min = 1000;
+stepsize = 100; % [mm]
+flag_path = 1;
+[cost, path] = dubins_curve(p1, p2, r_min, stepsize, flag_path);
+
+% path : [x, y, heading]
+
 %%
 % Application parameters
 EXE_TIME = 8;                              % Application running time in seconds
@@ -50,8 +60,10 @@ stat = true;
 lastR1 = 0;
 lastR2 = 0;
 
-q_robot = [0,0,0]; % [x,y,phi] : xy 위치 및 방위각
-q_des = [-1,1];
+i_des = 1;
+
+q_robot = [0,0,0]; % [x,y,phi] : xy 위치 및 방위각 % 매 time 업데이트 되게 짜야함
+q_des = path(1,1:2);
 
 Kp = 1;
 Kd = 0;
@@ -69,7 +81,9 @@ while stat == true                          % Quit when times up
     %     end
     
     if norm(q_robot(1,1) - q_des) <= 100 % 목표와의 거리가 10cm(0.1m) 이하인경우 
-        SPEED = 0;
+        i_des = i_des + 1;
+        q_des = path(i_des, 1:2);
+        %         SPEED = 0;
     else
         SPEED = 60;
     end
