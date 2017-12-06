@@ -1,4 +1,4 @@
-% mindstorm ¸ÅÆ®·¦ ¸Å´º¾ó Âü°í
+% mindstorm ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Å´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 % https://kr.mathworks.com/hardware-support/lego-mindstorms-ev3-matlab.html
 
 % port info
@@ -14,7 +14,8 @@ fclose('all')
 %% connect through bluetooth
 clear mylego
 
-mylego = legoev3('bt','00165354475a')
+%mylego = legoev3('bt ','00165355d61e')
+mylego = legoev3('usb')
 
 % beep 2 times
 beep(mylego); pause(0.5); beep(mylego)
@@ -26,7 +27,7 @@ mymotor2 = motor(mylego, 'C');
 
 %% path generation
 while true
-    fp = fopen('C:\data.txt');
+    fp = fopen('/home/lwc/git/EV3_ex/RobotDetect/data.txt');
     temp = fscanf(fp, '%f', [1 inf]);
     fclose(fp);
     if ~isempty(temp)
@@ -34,17 +35,17 @@ while true
     end
 end
 pos = temp;
-x = (pos(1) + pos(4) + pos(7))/3;
-y = (pos(2) + pos(5) + pos(8))/3;
-yaw = mod(pos(12), 360);        % yaw angle in [0, 360]
+x = (pos(1) + pos(3))/2;
+y = (pos(2) + pos(4))/2;
+yaw = mod(pos(5), 360);        % yaw angle in [0, 360]
 if yaw > 180
     yaw = yaw - 360; % yaw angle in [-180, 180]
     yaw = yaw*pi/180;
 end
 
 p1 = [x, y, yaw]'; % robot's initial [x,y,heading]
-p2 = [1200,500,0.3]'; % [x, y, heading] = [mm, mm , rad]
-r_min = 200; % [mm]
+p2 = [450,450,55*pi/180]'; % [x, y, heading] = [mm, mm , rad]
+r_min = 100; % [mm]
 stepsize = 50; % [mm]
 flag_path = 1;
 [cost, path] = dubins_curve(p1, p2, r_min, stepsize, flag_path);
@@ -81,10 +82,10 @@ lastR2 = 0;
 
 i_des = 1;
 
-q_robot = [0,0,0]; % [x,y,phi] : xy À§Ä¡ ¹× ¹æÀ§°¢ % ¸Å time ¾÷µ¥ÀÌÆ® µÇ°Ô Â¥¾ßÇÔ
+q_robot = [0,0,0]; % [x,y,phi] : xy ï¿½ï¿½Ä¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ % ï¿½ï¿½ time ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ç°ï¿½ Â¥ï¿½ï¿½ï¿½ï¿½
 q_des = path(1,1:2);
 
-Kp = 100;
+Kp = 200;
 Kd = 0;
 Ki = 0;
 
@@ -94,7 +95,7 @@ e_phi = 0;
 
 feedforward = 0;
 
-fp = fopen('C:\data.txt');
+fp = fopen('/home/lwc/git/EV3_ex/RobotDetect/data.txt');
 temp = fscanf(fp, '%f', [1 inf]);
 fclose(fp);
 pos = temp;
@@ -102,7 +103,7 @@ pos = temp;
 flag_start = 0;
 
 while true                          % Quit when times up
-    fp = fopen('C:\data.txt');
+    fp = fopen('/home/lwc/git/EV3_ex/RobotDetect/data.txt');
     temp = fscanf(fp, '%f', [1 inf]);
     fclose(fp);
     
@@ -126,9 +127,9 @@ while true                          % Quit when times up
         if pos > 1e5
             continue;
         end
-        x = (pos(1) + pos(4) + pos(7))/3;
-        y = (pos(2) + pos(5) + pos(8))/3;
-        yaw = mod(pos(12), 360);        % yaw angle in [0, 360]
+        x = (pos(1) + pos(3))/2;
+        y = (pos(2) + pos(4))/2;
+        yaw = mod(pos(5), 360);        % yaw angle in [0, 360]
         if yaw > 180
             yaw = yaw - 360; % yaw angle in [-180, 180]
         end
@@ -136,7 +137,7 @@ while true                          % Quit when times up
         
         q_robot = [x,y,yaw];
         
-        if norm(q_robot(1,1:2) - q_des) <= 100 % ¸ñÇ¥¿ÍÀÇ °Å¸®°¡ 10cm(0.1m) ÀÌÇÏÀÎ°æ¿ì
+        if norm(q_robot(1,1:2) - q_des) <= 26 % ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ 10cm(0.1m) ï¿½ï¿½ï¿½ï¿½ï¿½Î°ï¿½ï¿½
             i_des = i_des + 1;
             if i_des > length(path)
                 break;
